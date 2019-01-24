@@ -1,0 +1,51 @@
+/*
+A hidden Markov model addressing measurement 
+errors in the response and replicated covariates for 
+continuous nondecreasing processes 
+
+Lizbeth Naranjo, Carlos J. Perez, 
+Ruth Fuentes-Garcia, Jacinto Martin
+*/
+ 
+model{
+
+### Likelihood
+   for(i in 1:N){		
+
+### First examination 
+      Yobs[i,1] ~ dnorm(Ytrue[i,1],invtau2)
+      Ytrue[i,1] ~ dnorm(ETA[i,1],invsigma2)	
+      ETA[i,1] <- Alpha + Xtrue[i,1,1]*Beta[1] + Xtrue[i,1,2]*Beta[2] + Xtrue[i,1,3]*Beta[3] + Xtrue[i,1,4]*Beta[4] + Xtrue[i,1,5]*Beta[5] + Xtrue[i,1,6]*Beta[6] + Z[i]*Gamma         
+
+### 2nd,3rd,...,Kth examination 
+      for(k in 2:K){				
+         Yobs[i,k] ~ dnorm(Ytrue[i,k],invtau2)
+         Ytrue[i,k] ~ dnorm(ETA[i,k],invsigma2)T(Ytrue[i,k-1],)
+         ETA[i,k] <- Alpha + Xtrue[i,k,1]*Beta[1] + Xtrue[i,k,2]*Beta[2] + Xtrue[i,k,3]*Beta[3] + Xtrue[i,k,4]*Beta[4] + Xtrue[i,k,5]*Beta[5] + Xtrue[i,k,6]*Beta[6] + Z[i]*Gamma   
+
+      }
+
+### Replications
+      for(k in 1:K){
+         for(j in 1:J){		
+            Xrep[i,k,j,1:p] ~ dmnorm(Xtrue[i,k,1:p],invLambda)
+         }
+         Xtrue[i,k,1:p] ~ dmnorm(zeros,diagonal)
+      }
+   }
+				
+### Prior
+   Alpha ~ dnorm(0,1.0E-4)
+   Beta[1:p] ~ dmnorm(b0,B0)	
+   Gamma ~ dnorm(0,1.0E-4)
+   invsigma2 ~ dgamma(1.0E-3,1.0E-3)  
+   invtau2 ~ dgamma(1.0E-3,1.0E-3)  
+   invLambda ~ dwish(VV,vv)   
+   Lambda <- inverse(invLambda)
+   sigma2 <- pow(invsigma2,-1)
+   sigma <- pow(invsigma2,-0.5)
+   tau2 <- pow(invtau2,-1)
+   tau <- pow(invtau2,-0.5) 
+
+}
+
