@@ -9,7 +9,7 @@
 ### (1) Universidad Nacional Autonoma de Mexico, Mexico
 ### (2) Universidad de Extremadura, Spain
 ###
-### Submitted to Biostatistics
+### Published to Biostatistics
 ##################################################
 
 ##################################################
